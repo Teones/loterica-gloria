@@ -60,8 +60,19 @@ async function processarResposta(resposta, dataAtual) {
     }
 }
 
-function copiarMensagem(){
+function copiarMensagem() {
     const mensagem = document.getElementById('mensagem').innerText;
-    navigator.clipboard.writeText(mensagem);
-    alert('Mensagem copiada para a área de transferência!');
+    
+    // Verifica se a mensagem não está vazia
+    if (mensagem) {
+        const textarea = document.createElement('textarea');
+        textarea.value = mensagem;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        alert('Mensagem copiada para a área de transferência!');
+    } else {
+        alert('Não há mensagem para copiar.');
+    }
 }
