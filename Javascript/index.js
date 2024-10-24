@@ -25,6 +25,8 @@ async function gerarMensagem() {
         }
     }
 
+    mensagemCompleta += "🍀 *Lotérica Glória é bom para Cuité e melhor para você!*"
+
     // Mostra a mensagem completa (você pode alterar para mostrar na página ou fazer outra ação)
     document.getElementById('mensagem').innerText = mensagemCompleta;
 }
