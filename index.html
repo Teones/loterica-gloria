@@ -4,26 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="CSS/reset.css">
     <link rel="stylesheet" href="CSS/styles.css">
+
 
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
     <title>Lotérica Glória</title>
 </head>
 <body>
-    <!-- <div id="myDiv" style="width: 300px; height: 200px; background-color: lightblue;">
-        <h2>Minha Div como Imagem</h2>
-        <p>Esta div será convertida em imagem!</p>
-    </div>
-    <button id="downloadBtn">Baixar como imagem</button> -->
-    
-    <!-- <div class="mega-sena">
-        <h1>Ola</h1>
-    </div> -->
-
     <div class="container">
-
         <div id="mensagem" class="mensagem">
             <!-- A mensagem será gerada aqui -->
         </div>
@@ -32,6 +24,24 @@
             <button id="gerarMensagem" class="btn" onclick="gerarMensagem()">Gerar Mensagem</button>
             <button id="copiarMensagem" class="btn" onclick="copiarMensagem()">Copiar Mensagem</button>
         </div>
+        <div class="imagem-container">
+            <div id="checkbox-container" style="display: none;">
+                <div class="checks">
+                    <label>
+                        <input type="checkbox" id="megasena" value="megasena"> Mega Sena
+                    </label>
+                    <label>
+                        <input type="checkbox" id="quina" value="quina"> Quina
+                    </label>
+                    <label>
+                        <input type="checkbox" id="lotofacil" value="lotofacil"> Lotofácil
+                    </label>
+                </div>
+                <img id="imagemAtualizada" src="" alt="Imagem Atualizada" style="max-width: 100%; display: none;">
+                <button id="downloadImagem" class="btn" style="display: none;" onclick="gerarImagens()">Baixar Imagem</button>
+            </div>
+        </div>
+    </div>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="Javascript/index.js"></script>
