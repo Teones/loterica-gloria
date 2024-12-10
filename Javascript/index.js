@@ -99,78 +99,84 @@ function copiarMensagem() {
     }
 }
 
-async function gerarImagens(){
-      // Pegando os valores dos checkboxes
-    const megasenaSelecionada = document.getElementById('megasena').checked;
-    const quinaSelecionada = document.getElementById('quina').checked;
-    const lotofacilSelecionada = document.getElementById('lotofacil').checked;
+async function gerarImagens() {
+    // Verifica os checkboxes selecionados
+    const checkboxes = [
+        { id: 'megasena', dbKey: 'megasena' },
+        { id: 'quina', dbKey: 'quina' },
+        { id: 'lotofacil', dbKey: 'lotofacil' }
+    ].filter(item => document.getElementById(item.id).checked);
 
     // Verifica se pelo menos uma opção foi selecionada
-    if (megasenaSelecionada || quinaSelecionada || lotofacilSelecionada) {
-      console.log(megasenaSelecionada, quinaSelecionada, lotofacilSelecionada);
-      if (quinaSelecionada) {
-        console.log(db.quina,)
-
-        const info = [
-          {texto: `Concurso ${db.quina.concurso + 1}`,font: 40, x: 230, y: -470}, 
-          {texto: `É ${db.quina.dataProximoConcurso == data? "HOJE" : "Amanhã"}!`, font: 180, x: 0, y: -280}, 
-          {texto: `R$ ${(db.quina.valorEstimadoProximoConcurso / 1000000)} MILHÕES`, font: 180, x: 0, y: -50}, 
-          {texto: db.quina.dataProximoConcurso, font: 60, x: 350, y: 580}
-      ]
-
-      atualizarImagem('quina', info)
-      }
+    if (checkboxes.length > 0) {
+        for (const { id, dbKey } of checkboxes) {
+            if (db[dbKey]) {
+                const loteria = db[dbKey];
+                console.log(loteria)
+                let info = []
+                if(loteria.loteria == 'quina'){
+                    info = [
+                        { texto: `Concurso ${loteria.concurso + 1}`, font: 40, x: 230, y: -470 },
+                        { texto: `É ${loteria.dataProximoConcurso == data ? "HOJE" : "AMANHÃ"}!`, font: 180, x: 0, y: -280 },
+                        { texto: `${(loteria.valorEstimadoProximoConcurso / 1000000).toFixed(1)} MILHÕES`, font: 180, x: 0, y: -50 },
+                        { texto: loteria.dataProximoConcurso, font: 60, x: 350, y: 580 }
+                    ];
+                } else if(loteria.loteria == 'megasena'){
+                    info = [
+                        {texto: `Concurso ${loteria.concurso + 1}`,font: 40, x: 230, y: -450}, 
+                        {texto: `É ${loteria.dataProximoConcurso == data? "HOJE" : "Amanhã"}!`, font: 120, x: 0, y: -280}, 
+                        {texto: `${(loteria.valorEstimadoProximoConcurso / 1000000)} MILHÕES`,  font: 180, x: 0, y: 0}, 
+                        {texto: loteria.dataProximoConcurso, font: 60, x: 440, y: 455}
+                      ]
+              
+                }
+                await atualizarImagem(id, info);
+                baixarImagem(id); // Chama a função para baixar cada imagem gerada
+            } else {
+                console.warn(`Dados não encontrados para a loteria: ${dbKey}`);
+            }
+        }
     } else {
-      alert('Selecione pelo menos uma opção!');
+        alert('Selecione pelo menos uma opção!');
     }
-
 }
-
 
 async function atualizarImagem(loteria, infos) {
-  // criar canvas
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const imagemBase = new Image();
+    imagemBase.src = `../assets/${loteria}.png`;
 
-  // Carregar a imagem base
-  const imagemBase = new Image();
-  imagemBase.src = `../assets/${loteria}.png`;
+    return new Promise((resolve) => {
+        imagemBase.onload = () => {
+            canvas.width = imagemBase.width;
+            canvas.height = imagemBase.height;
 
-  // Esperar a imagem carregar
-  imagemBase.onload = () => {
-      canvas.width = imagemBase.width;
-      canvas.height = imagemBase.height;
+            // Desenha a imagem base no canvas
+            ctx.drawImage(imagemBase, 0, 0);
 
-      // Desenhar a imagem base no canvas
-      ctx.drawImage(imagemBase, 0, 0);
+            // Adiciona texto na imagem
+            infos.forEach(info => {
+                ctx.font = `bold ${info.font}px Inter`;
+                ctx.fillStyle = 'white';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(info.texto, canvas.width / 2 + info.x, canvas.height / 2 + info.y);
+            });
 
-      // Configurar estilo do texto
-      infos.forEach((info) => {
-        ctx.font = `bold ${info.font}px Inter`;
-        ctx.fillStyle = 'white';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-
-        // Desenhar o texto no canvas
-        ctx.fillText(info.texto, canvas.width / 2 + info.x, canvas.width / 2 + info.y);
+            // Atualiza a imagem na página
+            const imgElement = document.getElementById('imagemAtualizada');
+            imgElement.src = canvas.toDataURL();
+            imgElement.style.display = 'inline';
+            resolve(); // Resolve a promise quando a imagem for processada
+        };
     });
-
-      // Atualizar a imagem na página
-      const imgElement = document.getElementById('imagemAtualizada');
-      imgElement.src = canvas.toDataURL();
-
-      // Mostrar botão de download
-      document.getElementById('downloadImagem').style.display = 'inline';
-
-      // Adicionar evento de clique no botão de download
-      baixarImagem()
-  };
 }
 
-function baixarImagem() {
-  const imgElement = document.getElementById('imagemAtualizada');
-  const link = document.createElement('a');
-  link.href = imgElement.src;
-  link.download = 'imagem-atualizada.png';
-  link.click();
+function baixarImagem(loteria) {
+    const imgElement = document.getElementById('imagemAtualizada');
+    const link = document.createElement('a');
+    link.href = imgElement.src;
+    link.download = `${loteria}-atualizada.png`;
+    link.click();
 }
